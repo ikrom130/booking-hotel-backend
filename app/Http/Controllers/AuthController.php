@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -30,14 +32,14 @@ class AuthController extends Controller
     {
         $credentials = $request->only('email', 'password');
 
-        if (! $token = Auth::attempt($credentials)) {
+        if (! $token = auth('api')->attempt($credentials)) {
             return response()->json(['message' => 'Email atau password salah'], 401);
         }
 
         return response()->json([
             'message' => 'Login berhasil',
             'token' => $token,
-            'user' => Auth::user()
+            'user' => auth('api')->user()
         ]);
     }
 
