@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\ReservationController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -20,5 +21,11 @@ Route::apiResource('rooms', RoomController::class);
 
 Route::middleware('auth:api')->group(function () {
     Route::apiResource('rooms', RoomController::class);
+});
+
+Route::middleware('auth:api')->group(function () {
+    Route::post('/reservations', [ReservationController::class, 'store']);  // buat booking
+    Route::get('/reservations', [ReservationController::class, 'index']);   // list booking user
+    Route::get('/reservations/all', [ReservationController::class, 'all']); // admin
 });
 
