@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('rooms', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->integer('price');
+            $table->integer('stock')->default(1); // jumlah kamar tersedia
+            $table->string('image')->nullable(); // untuk foto kamar
             $table->timestamps();
         });
     }
