@@ -24,16 +24,17 @@ class RoomTest extends TestCase
     public function test_room_crud() {
         // 1. Register User
         $register = $this->postJson('api/register', [
-            'name' => 'Test User',
-            'email' => 'test@gmail.com',
+            'name' => 'Test User123',
+            'email' => 'test123@gmail.com',
             'password' => 'password',
+            'role' => 'admin',
         ]);
 
         $register->assertStatus(201);
 
         // 2. Login User
         $login = $this->postJson('api/login', [
-            'email' => 'test@gmail.com',
+            'email' => 'test123@gmail.com',
             'password' => 'password',
         ]);
 

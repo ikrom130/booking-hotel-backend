@@ -24,7 +24,8 @@ class ReservationTest extends TestCase
     public function test_user_can_make_reservation() {
         // Buat user
         $user = User::factory()->create([
-            'password' => bcrypt('123456')
+            'password' => bcrypt('123456'),
+            'role' => 'user'
         ]);
 
         // Login dapat token
@@ -46,7 +47,7 @@ class ReservationTest extends TestCase
 
         // Request booking
         $reservationResponse = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->postJson('/api/reservations', [
+            ->postJson('/api/book', [
                 'room_id' => $room->id,
                 'check_in' => '2025-01-01',
                 'check_out' => '2025-01-05'
@@ -64,7 +65,8 @@ class ReservationTest extends TestCase
     public function test_reservation_fails_if_no_stock() {
         // Buat user
         $user = User::factory()->create([
-            'password' => bcrypt('123456')
+            'password' => bcrypt('123456'),
+            'role' => 'user'
         ]);
 
         // Login dapat token
@@ -86,7 +88,7 @@ class ReservationTest extends TestCase
 
         // Request booking
         $reservationResponse = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->postJson('/api/reservations', [
+            ->postJson('/api/book', [
                 'room_id' => $room->id,
                 'check_in' => '2025-01-01',
                 'check_out' => '2025-01-05'
@@ -98,7 +100,7 @@ class ReservationTest extends TestCase
 
     public function test_unauthenticated_uesrs_cannot_make_reservation() {
         $room = Room::factory()->create();
-        $response = $this->postJson('/api/reservations', [
+        $response = $this->postJson('/api/book', [
             'room_id' => $room->id,
             'check_in' => '2025-01-01',
             'check_out' => '2025-01-03'
