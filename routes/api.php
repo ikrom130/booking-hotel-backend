@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReservationController;
 
 // Route::get('/user', function (Request $request) {
@@ -26,9 +27,20 @@ Route::middleware('auth:api')->group(function () {
 | (route controller UserController nanti kita buat)
 */
 Route::middleware(['auth:api', 'role:admin'])->group(function () {
-    // untuk manajemen akun (staff & user)
-    // Route::apiResource('/users', UserController::class); // opsional, nanti
-    Route::get('/reservations/all', [ReservationController::class, 'all']); // lihat semua booking
+    Route::get('/admin/users', [UserController::class, 'index']);
+    Route::post('/admin/staff', [UserController::class, 'storeStaff']);
+    Route::put('/admin/user/{id}', [UserController::class, 'update']);
+    Route::delete('/admin/user/{id}', [UserController::class, 'destroy']);
+});
+Route::middleware(['auth:api', 'role:admin'])->group(function () {
+    // untuk manajemen akun (staff)
+    Route::get('/admin/users', [UserController::class, 'index']);
+    Route::post('/admin/staff', [UserController::class, 'storeStaff']);
+    Route::put('/admin/user/{id}', [UserController::class, 'update']);
+    Route::delete('/admin/user/{id}', [UserController::class, 'destroy']);
+
+    // lihat semua booking
+    Route::get('/reservations/all', [ReservationController::class, 'all']);
 });
 
 /*
