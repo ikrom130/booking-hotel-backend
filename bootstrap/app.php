@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            'jwt.refresh' => \App\Http\Middleware\RefreshTokenMiddleware::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
     })

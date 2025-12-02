@@ -11,39 +11,37 @@ use App\Http\Controllers\ReservationController;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-// public Auth rutes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware(['auth:api', 'jwt.refresh'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
+
+    // universal untuk semua role
+    Route::get('/profile', [UserController::class, 'profile']);
+    Route::put('/profile', [UserController::class, 'updateProfile']);
 });
 
 /*
 |--------------------------------------------------------------------------
-|  ADMIN ONLY
+| ADMIN ONLY
 |--------------------------------------------------------------------------
-| Admin dapat kelola user/staff dan semua booking
-| (route controller UserController nanti kita buat)
 */
-Route::middleware(['auth:api', 'role:admin'])->group(function () {
-    // untuk manajemen akun (staff)
+Route::middleware(['auth:api', 'jwt.refresh', 'role:admin'])->group(function () {
     Route::get('/admin/users', [UserController::class, 'index']);
     Route::post('/admin/staff', [UserController::class, 'storeStaff']);
     Route::put('/admin/user/{id}', [UserController::class, 'update']);
     Route::delete('/admin/user/{id}', [UserController::class, 'destroy']);
-
-    // lihat semua booking
     Route::get('/reservations/all', [ReservationController::class, 'all']);
 });
 
 /*
 |--------------------------------------------------------------------------
-|  ADMIN + STAFF
+| ADMIN + STAFF
 |--------------------------------------------------------------------------
-| Dapat kelola kamar dan reservasi
 */
-Route::middleware(['auth:api', 'role:admin,staff'])->group(function () {
+Route::middleware(['auth:api', 'jwt.refresh', 'role:admin,staff'])->group(function () {
     Route::apiResource('/rooms', RoomController::class);
     Route::get('/bookings', [ReservationController::class, 'index']);
     Route::put('/booking/status/{id}', [ReservationController::class, 'updateStatus']);
@@ -51,11 +49,10 @@ Route::middleware(['auth:api', 'role:admin,staff'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-|  USER
+| USER
 |--------------------------------------------------------------------------
-| Dapat booking dan melihat booking miliknya sendiri
 */
-Route::middleware(['auth:api', 'role:user'])->group(function () {
-    Route::post('/book', [ReservationController::class, 'store']); // booking kamar
-    Route::get('/my-bookings', [ReservationController::class, 'myBooking']); // hanya booking miliknya
+Route::middleware(['auth:api', 'jwt.refresh', 'role:user'])->group(function () {
+    Route::post('/book', [ReservationController::class, 'store']);
+    Route::get('/my-bookings', [ReservationController::class, 'myBooking']);
 });

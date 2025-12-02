@@ -45,6 +45,20 @@ class AuthController extends Controller
         ]);
     }
 
+    public function refresh()
+    {
+        try {
+            $newToken = auth()->refresh();
+            return response()->json([
+                'access_token' => $newToken,
+                'token_type' => 'bearer',
+                'expires_in' => auth()->factory()->getTTL() * 60
+            ]);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return response()->json(['message' => 'Token invalid or expired'], 401);
+        }
+    }
+
     public function logout()
     {
         Auth::logout();

@@ -23,6 +23,7 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'role',
+        'profile_image',
     ];
 
     /**
@@ -32,7 +33,10 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $hidden = [
         'password',
+        'remember_token',
     ];
+
+    protected $appends = ['profile_image_url'];
 
     public function getJWTIdentifier()
     {
@@ -42,6 +46,11 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    // accessor: URL lengkap file
+    public function getProfileImageUrlAttribute() {
+        return $this->profile_image ? asset('storage/' . $this->profile_image) : null;
     }
 
     /**
