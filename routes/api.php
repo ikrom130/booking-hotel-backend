@@ -14,6 +14,9 @@ use App\Http\Controllers\ReservationController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::post('/payment/callback', [ReservationController::class, 'callback']);
+
+
 Route::middleware(['auth:api', 'jwt.refresh'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
