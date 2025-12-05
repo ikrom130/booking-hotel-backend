@@ -7,16 +7,28 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReservationController;
 
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::middleware(['throttle:60,1'])->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
 
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
+Route::post('resend-verification', [AuthController::class, 'resendVerification']);
+
+
+// Payment Callback
 Route::post('/payment/callback', [ReservationController::class, 'callback']);
 
 
+// Public Can See All Room Listing
+Route::get('/public/rooms', [RoomController::class, 'publicIndex']);
+Route::get('public/rooms/{id}', [RoomController::class, 'show']);
+
+
+// Auth All Roles
 Route::middleware(['auth:api', 'jwt.refresh'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
@@ -26,36 +38,41 @@ Route::middleware(['auth:api', 'jwt.refresh'])->group(function () {
     Route::put('/profile', [UserController::class, 'updateProfile']);
 });
 
-/*
-|--------------------------------------------------------------------------
-| ADMIN ONLY
-|--------------------------------------------------------------------------
-*/
+
+// User Only
+Route::middleware(['auth:api', 'jwt.refresh', 'role:user'])->group(function () {
+    Route::post('/book', [ReservationController::class, 'store']);
+    Route::get('/my-bookings', [ReservationController::class, 'myBooking']);
+    Route::get('/my-bookings/{id}', [ReservationController::class, 'show']);
+    Route::delete('my-bookings/{id}', [ReservationController::class, 'cancel']);
+});
+
+
+// Admin & Staff
+Route::middleware(['auth:api', 'jwt.refresh', 'role:admin,staff'])->group(function () {
+
+    // Rooms CRUD
+    Route::apiResource('/rooms', RoomController::class);
+
+    // Bookings Management
+    Route::get('/bookings', [ReservationController::class, 'index']);
+    Route::get('.bookings/{id}', [ReservationController::class, 'show']);
+    Route::put('/bookings/{id}', [ReservationController::class, 'updateStatus']);
+});
+
+
+// ADMIN ONLY
 Route::middleware(['auth:api', 'jwt.refresh', 'role:admin'])->group(function () {
+
+    // USER MANAGEMENT
     Route::get('/admin/users', [UserController::class, 'index']);
     Route::post('/admin/staff', [UserController::class, 'storeStaff']);
     Route::put('/admin/user/{id}', [UserController::class, 'update']);
     Route::delete('/admin/user/{id}', [UserController::class, 'destroy']);
-    Route::get('/reservations/all', [ReservationController::class, 'all']);
-});
 
-/*
-|--------------------------------------------------------------------------
-| ADMIN + STAFF
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth:api', 'jwt.refresh', 'role:admin,staff'])->group(function () {
-    Route::apiResource('/rooms', RoomController::class);
-    Route::get('/bookings', [ReservationController::class, 'index']);
-    Route::put('/booking/status/{id}', [ReservationController::class, 'updateStatus']);
-});
+    // RESERVATIONS
+    Route::get('/admin/reservations', [ReservationController::class, 'all']);
 
-/*
-|--------------------------------------------------------------------------
-| USER
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth:api', 'jwt.refresh', 'role:user'])->group(function () {
-    Route::post('/book', [ReservationController::class, 'store']);
-    Route::get('/my-bookings', [ReservationController::class, 'myBooking']);
+    // DASHBOARD STATS
+    Route::get('/admin/stats', [ReservationController::class, 'stats']);
 });
