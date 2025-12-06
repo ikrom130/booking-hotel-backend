@@ -61,18 +61,18 @@ Route::middleware(['auth:api', 'jwt.refresh', 'role:admin,staff'])->group(functi
 });
 
 
-// ADMIN ONLY
+// Admin Only
 Route::middleware(['auth:api', 'jwt.refresh', 'role:admin'])->group(function () {
 
-    // USER MANAGEMENT
+    // User Management
     Route::get('/admin/users', [UserController::class, 'index']);
     Route::post('/admin/staff', [UserController::class, 'storeStaff']);
     Route::put('/admin/user/{id}', [UserController::class, 'update']);
     Route::delete('/admin/user/{id}', [UserController::class, 'destroy']);
 
-    // RESERVATIONS
+    // Reservations
     Route::get('/admin/reservations', [ReservationController::class, 'all']);
 
-    // DASHBOARD STATS
+    // Dashborad Stats
     Route::get('/admin/stats', [ReservationController::class, 'stats']);
 });
